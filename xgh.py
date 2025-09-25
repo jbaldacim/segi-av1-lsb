@@ -1,3 +1,6 @@
+# py -u xgh.py hide img.png
+# py -u xgh.py reveal test.png
+
 from argparse import ArgumentParser
 from PIL import Image
 import numpy as np
@@ -56,10 +59,23 @@ def reveal_message(input_filepath):
     print("Mensagem revelada:")
     print(message)
 
+def check_size(input_filepath):
+    # Abrir imagem
+    image = Image.open(input_filepath)
+    image_np = np.array(image)
+
+    # Flatten do canal vermelho
+    flat_red_channel = image_np[:, :, 0].flatten()
+
+    # Calcular tamanho da mensagem
+    message_size = np.floor(len(flat_red_channel)/8)
+
+    print(f'Tamanho possível em caracteres ASCII: {message_size:.0f} caracteres')
 
 def parse_args():
     parser = ArgumentParser()
-    parser.add_argument('action', choices=['hide', 'reveal'], help="hide para esconder, reveal para revelar")
+    parser.add_argument('action', choices=['hide', 'reveal', 'checkSize'],
+        help="hide para esconder, reveal para revelar, checkSize para ver o tamanho possível da mensagem na imagem selecionada")
     parser.add_argument('input_filepath', help="Imagem de entrada")
     parser.add_argument('message', nargs='?', help="Mensagem a esconder (somente hide)")
     parser.add_argument('output_filepath', nargs='?', help="Arquivo de saída (somente hide)")
@@ -80,3 +96,5 @@ if __name__ == "__main__":
         hide_message(args.message, args.input_filepath, args.output_filepath)
     elif args.action == 'reveal':
         reveal_message(args.input_filepath)
+    elif args.action == 'checkSize':
+        check_size(args.input_filepath)
